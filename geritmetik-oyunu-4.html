@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geritmetik Sayı Dizisi Oyunu</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #f0f4ff;
+  min-height: 100vh;
+}
+
+/* ===================== START SCREEN ===================== */
+#startScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: linear-gradient(160deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  position: relative;
+  overflow: hidden;
+}
+#startScreen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M50 50v-10h-4v10h-10v4h10v10h4v-10h10v-4h-10zm0-40V0h-4v10H36v4h10v10h4V14h10v-4H50zM10 50v-10H6v10H-4v4h10v10h4v-10h10v-4H10zM10 10V0H6v10H-4v4h10v10h4V14h10v-4H10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.start-logo {
+  font-size: 60px;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+  position: relative;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.start-title {
+  font-size: clamp(28px, 6vw, 46px);
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  line-height: 1.1;
+  position: relative;
+  margin-bottom: 8px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.start-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, #ffe066, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.start-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  margin-bottom: 36px;
+  font-weight: 600;
+  position: relative;
+}
+.start-rules {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 20px 28px;
+  max-width: 460px;
+  width: 100%;
+  margin-bottom: 32px;
+  position: relative;
+}
+.start-rules h3 {
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #fff;
+  font-weight: 700;
+}
+.rule-item:last-child { margin-bottom: 0; }
+.rule-badge {
+  min-width: 38px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.rb-green { background: rgba(34,197,94,0.35); color: #bbf7d0; }
+.rb-red   { background: rgba(239,68,68,0.35);  color: #fecaca; }
+.rb-orange{ background: rgba(251,191,36,0.35); color: #fde68a; }
+.rb-blue  { background: rgba(99,102,241,0.35); color: #c7d2fe; }
+
+.btn-start {
+  position: relative;
+  background: linear-gradient(135deg, #ffe066, #ffd700);
+  color: #5b21b6;
+  border: none;
+  border-radius: 18px;
+  padding: 18px 52px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(255,214,0,0.5);
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.btn-start:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 40px rgba(255,214,0,0.6);
+}
+.btn-start:active { transform: scale(0.97); }
+.btn-start-arrow { margin-left: 8px; }
+
+/* ===================== GAME SCREEN ===================== */
+#gameScreen { display: none; padding: 0 0 60px; }
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px 20px 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.header h1 {
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+.header h1 em { font-style: normal; background: linear-gradient(90deg,#ffe066,#ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.header-sub { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 3px; position: relative; font-weight: 600; }
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 18px 16px; }
+
+/* scores */
+.scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.sc {
+  background: #fff; border-radius: 18px; padding: 14px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 3px solid transparent;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.sc.active-p1 { border-color: #22c55e; box-shadow: 0 4px 20px rgba(34,197,94,0.2); }
+.sc.active-p2 { border-color: #3b82f6; box-shadow: 0 4px 20px rgba(59,130,246,0.2); }
+.sc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.sc-name { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 7px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-p1 { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+.dot-p2 { background: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+.sc-pts { font-size: 26px; font-weight: 900; color: #1e293b; }
+.sc-pts sub { font-size: 12px; font-weight: 600; color: #94a3b8; }
+.bar-bg { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.bar { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(.25,.8,.25,1); }
+.bar-p1 { background: linear-gradient(90deg, #22c55e, #86efac); }
+.bar-p2 { background: linear-gradient(90deg, #3b82f6, #93c5fd); }
+.sira-chip { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+.sira-p1 { background: #dcfce7; color: #16a34a; }
+.sira-p2 { background: #dbeafe; color: #1d4ed8; }
+
+/* status row */
+.status-row { display: flex; gap: 10px; margin-bottom: 14px; align-items: stretch; }
+.timer-box {
+  flex-shrink: 0; background: #fff; border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+  font-weight: 900; font-size: 22px; color: #667eea;
+  min-width: 110px; border: 3px solid #e8ebff; transition: all 0.3s;
+}
+.timer-box.urgent {
+  border-color: #fca5a5; color: #ef4444; background: #fff5f5;
+  animation: tpulse 0.7s ease-in-out infinite alternate;
+}
+@keyframes tpulse { from { box-shadow: 0 4px 16px rgba(239,68,68,0.1); } to { box-shadow: 0 4px 24px rgba(239,68,68,0.35); } }
+.msg-box {
+  flex: 1; background: #fff; border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 12px 18px; font-size: 14px; font-weight: 700; color: #475569;
+  display: flex; align-items: center; border: 3px solid transparent; transition: all 0.3s;
+}
+.msg-box.correct { border-color: #bbf7d0; background: #f0fdf4; color: #15803d; }
+.msg-box.wrong   { border-color: #fecaca; background: #fff5f5; color: #dc2626; }
+
+/* cards */
+.cards-label { font-size: 12px; font-weight: 800; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+.cards-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
+.var-card {
+  border-radius: 18px; padding: 16px 0 18px; text-align: center;
+  border: none; cursor: default; transition: transform 0.15s;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.var-card:hover { transform: translateY(-3px); }
+.var-card.pop { animation: cardPop 0.45s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes cardPop { 0%{transform:scale(0.7) translateY(10px);opacity:0.3} 100%{transform:scale(1) translateY(0);opacity:1} }
+.card-a1 { background: linear-gradient(145deg, #ff6eb4, #ff4d9e); }
+.card-r  { background: linear-gradient(145deg, #f97316, #ea580c); }
+.card-d  { background: linear-gradient(145deg, #22c55e, #16a34a); }
+.card-n  { background: linear-gradient(145deg, #a855f7, #9333ea); }
+.var-symbol { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.8); margin-bottom: 6px; }
+.var-value  { font-size: 34px; font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+/* input */
+.input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.answer-input {
+  flex: 1; background: #fff; border: 3px solid #e2e8f0; border-radius: 14px;
+  padding: 13px 18px; font-family: 'Nunito', sans-serif;
+  font-size: 20px; font-weight: 800; color: #1e293b; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s; -moz-appearance: textfield;
+}
+.answer-input::-webkit-outer-spin-button,.answer-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.answer-input:focus { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.15); }
+.answer-input::placeholder { color: #cbd5e1; font-size: 14px; font-weight: 600; }
+.answer-input:disabled { background: #f8fafc; opacity: 0.6; }
+.btn-check {
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none;
+  border-radius: 14px; padding: 13px 26px; font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 800; cursor: pointer; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(102,126,234,0.4); transition: all 0.2s;
+}
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.5); }
+.btn-check:active { transform: scale(0.97); }
+.btn-check:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* action row */
+.action-row { display: flex; gap: 10px; margin-bottom: 22px; }
+.btn-hint {
+  flex: 1; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; border: none;
+  border-radius: 14px; padding: 12px 16px; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245,158,11,0.35); transition: all 0.2s;
+}
+.btn-hint:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245,158,11,0.45); }
+.btn-reset {
+  background: #fff; border: 3px solid #e2e8f0; border-radius: 14px; color: #64748b;
+  font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+  padding: 12px 18px; cursor: pointer; transition: all 0.2s;
+}
+.btn-reset:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+/* ===================== BOARD ===================== */
+.board-wrap {
+  background: #fff;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  margin-bottom: 14px;
+}
+.board-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.board-title { font-size: 15px; font-weight: 900; color: #334155; }
+.board-legend { display: flex; gap: 14px; font-size: 12px; font-weight: 700; color: #64748b; align-items: center; }
+.leg-d { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+/* Snake-style path board */
+.snake-board {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.board-row {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border: 2px solid #e2e8f0;
+  position: relative;
+  transition: background 0.3s, transform 0.2s;
+  cursor: default;
+  min-height: 36px;
+}
+.cell:hover { transform: scale(1.08); z-index: 2; }
+
+/* Renk grupları */
+.cell.c1  { background: #fef9c3; border-color: #fde047; color: #854d0e; }
+.cell.c2  { background: #dcfce7; border-color: #86efac; color: #166534; }
+.cell.c3  { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+.cell.c4  { background: #fce7f3; border-color: #f9a8d4; color: #9d174d; }
+.cell.c5  { background: #ede9fe; border-color: #c4b5fd; color: #5b21b6; }
+
+/* Her 5'in katı — milestone */
+.cell.mile {
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  border-color: #fbbf24 !important;
+  color: #92400e !important;
+  font-size: 11px;
+  box-shadow: 0 2px 8px rgba(251,191,36,0.3);
+}
+/* Bitiş */
+.cell.finish {
+  background: linear-gradient(135deg, #ffd700, #ff9f00) !important;
+  border-color: #f59e0b !important;
+  color: #fff !important;
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.5);
+  animation: shimmer 2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,100% { box-shadow: 0 4px 16px rgba(245,158,11,0.4); }
+  50% { box-shadow: 0 4px 24px rgba(245,158,11,0.8); }
+}
+
+/* Piyonlar */
+.pawn {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  z-index: 3;
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+.pawn-p1 {
+  width: 18px; height: 18px;
+  background: radial-gradient(circle at 35% 35%, #4ade80, #16a34a);
+  top: 2px; left: 2px;
+  box-shadow: 0 3px 8px rgba(34,197,94,0.6);
+}
+.pawn-p2 {
+  width: 18px; height: 18px;
+  background: radial-gradient(circle at 35% 35%, #60a5fa, #1d4ed8);
+  bottom: 2px; right: 2px;
+  box-shadow: 0 3px 8px rgba(59,130,246,0.6);
+}
+.pawn-p1.active { animation: bounce 0.5s ease; }
+.pawn-p2.active { animation: bounce 0.5s ease; }
+@keyframes bounce {
+  0%  { transform: scale(1) translateY(0); }
+  40% { transform: scale(1.4) translateY(-6px); }
+  100%{ transform: scale(1) translateY(0); }
+}
+
+/* cell number */
+.cell-num { line-height: 1; z-index: 1; }
+
+/* var desc */
+.var-desc {
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  padding: 14px 18px; margin-top: 14px;
+  display: flex; flex-wrap: wrap; gap: 10px 20px;
+}
+.vd-item { font-size: 13px; font-weight: 700; color: #64748b; }
+.vd-a { color: #db2777; font-weight: 900; }
+.vd-r { color: #ea580c; font-weight: 900; }
+.vd-d { color: #16a34a; font-weight: 900; }
+.vd-n { color: #9333ea; font-weight: 900; }
+
+/* ===================== MODAL ===================== */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,0.6); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999; padding: 16px;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: #fff; border-radius: 24px; max-width: 460px; width: 100%;
+  padding: 28px; max-height: 88vh; overflow-y: auto;
+  transform: translateY(24px) scale(0.96);
+  transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+}
+.overlay.open .modal { transform: translateY(0) scale(1); }
+.modal-title { font-size: 18px; font-weight: 900; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.mt-ok   { color: #16a34a; } .mt-fail { color: #dc2626; }
+.mt-info { color: #667eea; } .mt-warn { color: #d97706; }
+.mt-win  { color: #7c3aed; font-size: 22px; justify-content: center; }
+.formula-box {
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border: 2px solid #c7d2fe; border-radius: 12px;
+  padding: 14px 16px; font-size: 13px; font-weight: 700; color: #4338ca;
+  text-align: center; margin-bottom: 14px; line-height: 1.5;
+}
+.det-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
+.det-label { font-size: 11px; font-weight: 800; color: #94a3b8; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+.det-val { font-size: 16px; font-weight: 900; color: #1e293b; }
+.det-val.teal { color: #0d9488; } .det-val.blue { color: #2563eb; }
+.result-total {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border: 2px solid #6ee7b7; border-radius: 14px; padding: 16px;
+  text-align: center; font-size: 24px; font-weight: 900; color: #065f46; margin: 12px 0 4px;
+}
+.wrong-hint {
+  background: #fff5f5; border: 2px solid #fecaca; border-radius: 12px;
+  padding: 10px 16px; text-align: center; font-size: 14px; font-weight: 800; color: #dc2626; margin-top: 8px;
+}
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+.mbtn {
+  padding: 11px 22px; border-radius: 12px; font-family: 'Nunito', sans-serif;
+  font-size: 15px; font-weight: 800; cursor: pointer; border: none; transition: all 0.2s;
+}
+.mbtn.primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; box-shadow: 0 4px 14px rgba(102,126,234,0.35); }
+.mbtn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.5); }
+.mbtn.secondary { background: #f1f5f9; color: #64748b; }
+.mbtn.secondary:hover { background: #e2e8f0; }
+.mbtn.danger { background: #fff5f5; color: #dc2626; border: 2px solid #fecaca; }
+.mbtn.danger:hover { background: #fee2e2; }
+.win-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 0; }
+.win-sc { background: #f8fafc; border-radius: 14px; padding: 14px; text-align: center; border: 3px solid #e2e8f0; }
+.win-sc.w { border-color: #86efac; background: #f0fdf4; }
+.win-sc-n { font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 4px; }
+.win-sc-v { font-size: 28px; font-weight: 900; }
+.win-sc.w .win-sc-v { color: #16a34a; }
+
+/* ===== FORMULA STRIP ===== */
+.formula-strip {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 2px solid #c4b5fd;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+.fs-vars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 10px;
+}
+.fs-v {
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.fs-v em {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 11px;
+  opacity: 0.75;
+}
+.fv-a { background: #fce7f3; color: #db2777; }
+.fv-r { background: #ffedd5; color: #ea580c; }
+.fv-d { background: #dcfce7; color: #16a34a; }
+.fv-n { background: #ede9fe; color: #7c3aed; }
+.fs-formula {
+  font-size: 14px;
+  font-weight: 800;
+  color: #4c1d95;
+  text-align: center;
+  background: rgba(255,255,255,0.6);
+  border-radius: 10px;
+  padding: 10px 14px;
+  letter-spacing: 0.2px;
+  line-height: 1.5;
+}
+
+@media(max-width:480px){
+  .cards-grid { grid-template-columns: repeat(2,1fr); }
+  .var-value { font-size: 28px; }
+  .action-row { flex-direction: column; }
+  .cell { min-height: 28px; font-size: 8px; border-radius: 7px; }
+  .pawn-p1, .pawn-p2 { width: 13px; height: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ START SCREEN ============ -->
+<div id="startScreen">
+  <div class="start-logo">🎲</div>
+  <div class="start-title">Geritmetik <em>Sayı Dizisi</em></div>
+  <div class="start-sub">İki oyunculu matematik yarışması</div>
+
+  <div class="start-rules">
+    <h3>📋 Oyun Kuralları</h3>
+    <div class="rule-item"><span class="rule-badge rb-blue">Hedef</span>İlk 50 adıma ulaşan oyuncu kazanır</div>
+    <div class="rule-item"><span class="rule-badge rb-green">+5</span>Doğru cevap için 5 adım kazanırsın</div>
+    <div class="rule-item"><span class="rule-badge rb-red">−2</span>Yanlış cevap veya süre biterse 2 adım kaybedersin</div>
+    <div class="rule-item"><span class="rule-badge rb-orange">−1</span>Formül hatırlatıcısı kullanmak 1 adım ceza</div>
+    <div class="rule-item"><span class="rule-badge rb-blue">⏱ 60s</span>Her tur için 60 saniye süren var</div>
+  </div>
+
+  <button class="btn-start" onclick="startGame()">
+    Oyuna Başla <span class="btn-start-arrow">▶</span>
+  </button>
+</div>
+
+<!-- ============ GAME SCREEN ============ -->
+<div id="gameScreen">
+  <div class="header">
+    <h1>Geritmetik <em>Sayı Dizisi</em> 🎲</h1>
+    <div class="header-sub">İki oyunculu matematik oyunu · Hedef: 50 adım</div>
+  </div>
+
+  <div class="wrap">
+    <!-- SCORES -->
+    <div class="scores">
+      <div class="sc active-p1" id="sc1">
+        <div class="sc-top">
+          <div class="sc-name"><div class="dot dot-p1"></div>Oyuncu 1</div>
+          <span class="sira-chip sira-p1" id="tb1">SIRA SENİN!</span>
+        </div>
+        <div class="sc-pts"><span id="p1pts">0</span><sub> / 50</sub></div>
+        <div class="bar-bg" style="margin-top:8px"><div class="bar bar-p1" id="p1bar" style="width:0%"></div></div>
+      </div>
+      <div class="sc" id="sc2">
+        <div class="sc-top">
+          <div class="sc-name"><div class="dot dot-p2"></div>Oyuncu 2</div>
+          <span class="sira-chip sira-p2" id="tb2" style="display:none">SIRA SENİN!</span>
+        </div>
+        <div class="sc-pts"><span id="p2pts">0</span><sub> / 50</sub></div>
+        <div class="bar-bg" style="margin-top:8px"><div class="bar bar-p2" id="p2bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- TIMER + MSG -->
+    <div class="status-row">
+      <div class="timer-box" id="timerBox">⏱ <span id="timerNum">60</span>s</div>
+      <div class="msg-box" id="msgBox">Oyun başladı! Oyuncu 1 başlıyor. 🚀</div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-label">Bu Turun Değişkenleri</div>
+    <div class="cards-grid">
+      <div class="var-card card-a1" id="vc-a1"><div class="var-symbol">a₁</div><div class="var-value" id="va1">—</div></div>
+      <div class="var-card card-r"  id="vc-r" ><div class="var-symbol">r</div> <div class="var-value" id="vr">—</div></div>
+      <div class="var-card card-d"  id="vc-d" ><div class="var-symbol">d</div> <div class="var-value" id="vd">—</div></div>
+      <div class="var-card card-n"  id="vc-n" ><div class="var-symbol">n</div> <div class="var-value" id="vn">—</div></div>
+    </div>
+
+    <!-- FORMULA STRIP -->
+    <div class="formula-strip">
+      <div class="fs-vars">
+        <span class="fs-v fv-a">a₁ <em>ilk terim</em></span>
+        <span class="fs-v fv-r">r <em>geometrik oran</em></span>
+        <span class="fs-v fv-d">d <em>aritmetik fark</em></span>
+        <span class="fs-v fv-n">n <em>terim numarası</em></span>
+      </div>
+      <div class="fs-formula">Terim(n) = a₁ · r<sup>n−1</sup> + d · ((r<sup>n−1</sup> − 1) / (r − 1))</div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-row">
+      <input type="number" class="answer-input" id="answerInput" placeholder="Terim(n) değerini girin..." />
+      <button class="btn-check" id="checkBtn" onclick="checkAnswer()">Kontrol Et ✓</button>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="action-row">
+      <button class="btn-hint" onclick="showHintConfirm()">💡 Formül Hatırlatıcı <small style="opacity:.8">(−1 adım ceza)</small></button>
+      <button class="btn-reset" onclick="confirmReset()">↺ Yeniden</button>
+    </div>
+
+    <!-- BOARD -->
+    <div class="board-wrap">
+      <div class="board-head">
+        <div class="board-title">🏁 Oyun Tahtası</div>
+        <div class="board-legend">
+          <div class="leg-d" style="background:radial-gradient(circle at 35% 35%,#4ade80,#16a34a)"></div>Oyuncu 1
+          <div class="leg-d" style="background:radial-gradient(circle at 35% 35%,#60a5fa,#1d4ed8)"></div>Oyuncu 2
+        </div>
+      </div>
+      <div class="snake-board" id="snakeBoard"></div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+const TARGET=50, C=5, W=-2, TL=60;
+let p1=0, p2=0, turn=1, a1v, rv, dv, nv, expected;
+let timeLeft=TL, tim=null, over=false;
+
+// Renk grupları (satır bazlı, 5 renk dönüşümlü)
+const ROW_COLORS = ['c1','c2','c3','c4','c5'];
+
+/* ---- Yılan tahtası mantığı ----
+   Satır 0 = 1..10 (soldan sağa)
+   Satır 1 = 11..20 (sağdan sola — yılan)
+   Satır 2 = 21..30 (soldan sağa)
+   ...
+*/
+function buildBoard() {
+  const board = document.getElementById('snakeBoard');
+  board.innerHTML = '';
+  const ROWS = 5, COLS = 10;
+  for (let row = 0; row < ROWS; row++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'board-row';
+    rowEl.id = 'row-' + row;
+    const nums = [];
+    for (let col = 0; col < COLS; col++) {
+      const step = row * COLS + col + 1;
+      nums.push(step);
+    }
+    // Tek satırlar sağdan sola (yılan)
+    const display = row % 2 === 1 ? [...nums].reverse() : nums;
+    display.forEach(step => {
+      const c = document.createElement('div');
+      c.id = 'cell-' + step;
+      const colorClass = ROW_COLORS[row % ROW_COLORS.length];
+      let cls = 'cell ' + colorClass;
+      if (step % 5 === 0 && step < TARGET) cls += ' mile';
+      if (step === TARGET) cls += ' finish';
+      c.className = cls;
+      const numSpan = document.createElement('span');
+      numSpan.className = 'cell-num';
+      numSpan.textContent = step === TARGET ? '🏆' : step;
+      c.appendChild(numSpan);
+      rowEl.appendChild(c);
+    });
+    board.appendChild(rowEl);
+  }
+}
+
+function renderPawns() {
+  // Eski piyonları temizle
+  document.querySelectorAll('.pawn').forEach(p => p.remove());
+  // P1
+  if (p1 > 0 && p1 <= TARGET) {
+    const cell = document.getElementById('cell-' + p1);
+    if (cell) {
+      const p = document.createElement('div');
+      p.className = 'pawn pawn-p1';
+      p.textContent = '1';
+      cell.appendChild(p);
+    }
+  }
+  // P2
+  if (p2 > 0 && p2 <= TARGET) {
+    const cell = document.getElementById('cell-' + p2);
+    if (cell) {
+      const p = document.createElement('div');
+      p.className = 'pawn pawn-p2';
+      p.textContent = '2';
+      cell.appendChild(p);
+    }
+  }
+}
+
+/* ---- Math ---- */
+function gerit(a,r,d,n){
+  if(n<1)return 0;
+  if(r===1)return a+d*(n-1);
+  const rn=Math.pow(r,n-1);
+  return Math.round(a*rn+d*(rn-1)/(r-1));
+}
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+function newRound(){
+  a1v=rnd(1,5); rv=rnd(2,4); dv=rnd(1,5); nv=rnd(2,7);
+  expected=gerit(a1v,rv,dv,nv);
+  document.getElementById('va1').textContent=a1v;
+  document.getElementById('vr').textContent=rv;
+  document.getElementById('vd').textContent=dv;
+  document.getElementById('vn').textContent=nv;
+  ['vc-a1','vc-r','vc-d','vc-n'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  });
+  const inp=document.getElementById('answerInput');
+  inp.value=''; inp.disabled=false;
+  document.getElementById('checkBtn').disabled=false;
+  inp.focus();
+}
+
+/* ---- Timer ---- */
+function startTimer(){
+  clearInterval(tim); timeLeft=TL; updateTimerUI();
+  tim=setInterval(()=>{timeLeft--; updateTimerUI(); if(timeLeft<=0){clearInterval(tim);timesUp();}},1000);
+}
+function updateTimerUI(){
+  document.getElementById('timerNum').textContent=timeLeft;
+  document.getElementById('timerBox').classList.toggle('urgent', timeLeft<=10);
+}
+function timesUp(){
+  applyPts(W); setMsg('⏰ Süre doldu! Oyuncu '+turn+' sıra kaybetti. ('+W+' Adım)','wrong');
+  document.getElementById('answerInput').disabled=true;
+  document.getElementById('checkBtn').disabled=true;
+  showFormula(false,true);
+}
+
+/* ---- Score ---- */
+function applyPts(pts){
+  if(turn===1) p1=Math.max(0,p1+pts);
+  else         p2=Math.max(0,p2+pts);
+  renderScores(); renderPawns();
+  if(p1>=TARGET){endGame(1);return true;}
+  if(p2>=TARGET){endGame(2);return true;}
+  return false;
+}
+function renderScores(){
+  document.getElementById('p1pts').textContent=p1;
+  document.getElementById('p2pts').textContent=p2;
+  document.getElementById('p1bar').style.width=Math.min(100,p1/TARGET*100)+'%';
+  document.getElementById('p2bar').style.width=Math.min(100,p2/TARGET*100)+'%';
+  document.getElementById('sc1').className='sc'+(turn===1?' active-p1':'');
+  document.getElementById('sc2').className='sc'+(turn===2?' active-p2':'');
+  document.getElementById('tb1').style.display=turn===1?'inline-block':'none';
+  document.getElementById('tb2').style.display=turn===2?'inline-block':'none';
+}
+
+function setMsg(txt,cls=''){
+  const m=document.getElementById('msgBox');
+  m.textContent=txt; m.className='msg-box'; if(cls)m.classList.add(cls);
+}
+
+/* ---- Check ---- */
+function checkAnswer(){
+  if(over||timeLeft<=0)return;
+  clearInterval(tim);
+  const val=parseInt(document.getElementById('answerInput').value,10);
+  if(isNaN(val)){setMsg('⚠️ Lütfen geçerli bir sayı girin.');startTimer();return;}
+  const ok=(val===expected);
+  const done=applyPts(ok?C:W);
+  if(done)return;
+  setMsg(ok?('✅ DOĞRU! (+'+C+' Adım)'):('❌ YANLIŞ! ('+W+' Adım)'), ok?'correct':'wrong');
+  document.getElementById('answerInput').disabled=true;
+  document.getElementById('checkBtn').disabled=true;
+  showFormula(ok,false);
+}
+
+/* ---- Formula Modal ---- */
+function showFormula(ok,timeout){
+  const rn=Math.pow(rv,nv-1);
+  let gP,sP;
+  if(rv===1){gP=a1v;sP=dv*(nv-1);}
+  else{gP=Math.round(a1v*rn);sP=Math.round(dv*(rn-1)/(rv-1));}
+  const total=gP+sP;
+  const tc=ok?'mt-ok':'mt-fail';
+  const ti=ok?'✅ Doğru hesaplama!':(timeout?'⏱ Süre doldu — çözüm':'❌ Yanlış — doğru çözüm');
+  openModal(`
+    <div class="modal-title ${tc}">${ti}</div>
+    <div class="formula-box">Terim(n) = a₁ · r<sup>n−1</sup> + d · ((r<sup>n−1</sup> − 1) / (r − 1))</div>
+    <div class="det-card"><div class="det-label">Geometrik Kısım — a₁ · rⁿ⁻¹</div><div class="det-val teal">${a1v} × ${rv}^${nv-1} = ${gP}</div></div>
+    <div class="det-card"><div class="det-label">Toplam Kısım — d · ((rⁿ⁻¹−1)/(r−1))</div><div class="det-val blue">${dv} × ((${rv}^${nv-1}−1)/(${rv}−1)) = ${sP}</div></div>
+    <div class="result-total">${gP} + ${sP} = ${total}</div>
+    ${!ok?`<div class="wrong-hint">Doğru cevap: ${expected}</div>`:''}
+    <div class="modal-actions"><button class="mbtn primary" onclick="closeFormula()">Tamam, devam! →</button></div>
+  `);
+}
+function closeFormula(){
+  closeModal(); if(over)return;
+  turn=turn===1?2:1;
+  renderScores(); newRound(); startTimer();
+  setMsg('🎯 Sıra Oyuncu '+turn+"'de!");
+}
+
+/* ---- Hint ---- */
+function showHintConfirm(){
+  openModal(`
+    <div class="modal-title mt-warn">💡 Formül Hatırlatıcısı</div>
+    <p style="font-size:15px;color:#475569;line-height:1.6;margin-bottom:6px">
+      Formülü görmek isterseniz <b style="color:#1e293b">Oyuncu ${turn}</b> <b style="color:#dc2626">1 adım</b> geri gider. Devam?
+    </p>
+    <div class="modal-actions">
+      <button class="mbtn secondary" onclick="closeModal()">Vazgeç</button>
+      <button class="mbtn danger" onclick="applyHint()">Göster (−1 adım)</button>
+    </div>
+  `);
+}
+function applyHint(){
+  closeModal(); applyPts(-1);
+  setMsg('💡 Oyuncu '+turn+' formül hatırlatıcısını kullandı (−1 Adım).');
+  openModal(`
+    <div class="modal-title mt-info">✨ Geritmetik Dizi Formülü</div>
+    <div class="formula-box" style="font-size:15px;padding:18px">Terim(n) = a₁ · rⁿ⁻¹ + d · ((rⁿ⁻¹−1)/(r−1))</div>
+    <div class="det-card"><div class="det-label">Bu Turun Değerleri</div>
+      <div class="det-val">a₁=<span style="color:#db2777">${a1v}</span> &nbsp; r=<span style="color:#ea580c">${rv}</span> &nbsp; d=<span style="color:#16a34a">${dv}</span> &nbsp; n=<span style="color:#9333ea">${nv}</span></div>
+    </div>
+    <div class="modal-actions"><button class="mbtn primary" onclick="closeModal()">Kapat</button></div>
+  `);
+}
+
+/* ---- End Game ---- */
+function endGame(w){
+  over=true; clearInterval(tim);
+  openModal(`
+    <div class="modal-title mt-win">🏆 Oyun Bitti!</div>
+    <p style="text-align:center;font-size:15px;color:#475569;margin:8px 0">Tebrikler, <b style="color:#7c3aed">Oyuncu ${w}</b>!<br>50 adım hedefine ulaştın! 🎉</p>
+    <div class="win-scores">
+      <div class="win-sc${w===1?' w':''}"><div class="win-sc-n">Oyuncu 1</div><div class="win-sc-v" style="color:${w===1?'#16a34a':'#94a3b8'}">${p1}</div></div>
+      <div class="win-sc${w===2?' w':''}"><div class="win-sc-n">Oyuncu 2</div><div class="win-sc-v" style="color:${w===2?'#16a34a':'#94a3b8'}">${p2}</div></div>
+    </div>
+    <div class="modal-actions" style="justify-content:center;margin-top:20px">
+      <button class="mbtn primary" onclick="resetGame()">🔄 Yeniden Oyna</button>
+    </div>
+  `);
+}
+
+/* ---- Reset ---- */
+function confirmReset(){
+  openModal(`
+    <div class="modal-title mt-warn">↺ Oyunu Sıfırla?</div>
+    <p style="font-size:14px;color:#64748b;margin-bottom:4px">Tüm puanlar sıfırlanacak. Emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="mbtn secondary" onclick="closeModal()">İptal</button>
+      <button class="mbtn danger" onclick="resetGame()">Sıfırla</button>
+    </div>
+  `);
+}
+function resetGame(){
+  closeModal(); over=false; p1=0; p2=0; turn=1;
+  buildBoard(); renderPawns(); renderScores(); newRound(); startTimer();
+  setMsg('🚀 Oyun yeniden başladı! Oyuncu 1 başlıyor.');
+}
+
+/* ---- Start ---- */
+function startGame(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='block';
+  buildBoard(); renderPawns(); renderScores(); newRound(); startTimer();
+}
+
+/* ---- Modal helpers ---- */
+function openModal(html){
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!over&&timeLeft>0&&!document.getElementById('overlay').classList.contains('open'))
+    checkAnswer();
+});
+</script>
+</body>
+</html>
