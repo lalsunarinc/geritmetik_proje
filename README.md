@@ -1,0 +1,1 @@
+# geritmetik_proje
