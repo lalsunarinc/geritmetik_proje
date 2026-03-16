@@ -183,15 +183,7 @@ Nisan   → Web uygulamasına taşıma (HTML/CSS/JS)
 4. Branch'ini push'la: `git push origin ozellik/yeni-ozellik`
 5. Pull Request aç
 
----
-
-## 📄 Lisans
-
-Bu proje MIT lisansı ile lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
-
----
-
-<div align="center">
+--
 
 **BİLSEM Matematik Projesi**  
 Orijinal teorik içerik © Lal Su Narinç (2021)
